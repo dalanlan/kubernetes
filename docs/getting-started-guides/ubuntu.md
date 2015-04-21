@@ -1,17 +1,29 @@
 # Kubernetes deployed on ubuntu nodes
 
+<<<<<<< HEAD
 This document describes how to deploy kubernetes on ubuntu nodes, including 1 master node and 3 minion nodes, and people uses this approach can scale to **any number of minion nodes** by changing some settings with ease. Although there exists saltstack based ubuntu k8s installation ,  it may be tedious and hard for a guy that knows little about saltstack but want to build a really distributed k8s cluster. This new approach of kubernetes deployment is much more easy and automatical than the previous one.
+=======
+This document describes how to deploy kubernetes on ubuntu nodes, including 1 master node and 3 minion nodes, and people uses this approach can scale to **any number of minion nodes** by changing some settings with ease. Although there exists saltstack based ubuntu k8s installation ,  it may be tedious and hard for a guy that knows little about saltstack but want to build a really distributed k8s cluster. This new approach of kubernets deployment is much more easy and automatical than the previous one.
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 
 [Cloud team from ZJU](https://github.com/ZJU-SEL) will keep updating this work.
 
 ### **Prerequisites：**
 *1 The minion nodes have installed docker version 1.2+ and bridge-utils to manipulate linux bridge* 
 
+<<<<<<< HEAD
 *2 All machines can communicate with each other, no need to connect Internet (should use private docker registry in this case)*
 
 *3 These guide is tested OK on Ubuntu 14.04 LTS 64bit server, but it should also work on most Ubuntu versions*
 
 *4 Dependences of this guide: etcd-2.0.0, flannel-0.4.0, k8s-0.15.0, but it may work with higher versions*
+=======
+*2 All machines can communicate with each orther, no need to connect Internet (should use private docker registry in this case)*
+
+*3 These guide is tested OK on Ubuntu 14.04 LTS 64bit server, but it should also work on most Ubuntu versions*
+
+*4 Dependences of this guide: etcd-2.0.0, flannel-0.2.0, k8s-0.15.0, but it may work with higher versions*
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 
 *5 All the remote servers can be ssh logged in without a password by using key authentication* 
 
@@ -19,7 +31,12 @@ This document describes how to deploy kubernetes on ubuntu nodes, including 1 ma
 ### **Main Steps**
 #### I. Make *kubernetes* , *etcd* and *flanneld* binaries
 
+<<<<<<< HEAD
 First clone the kubernetes github repo, `$ git clone https://github.com/GoogleCloudPlatform/kubernetes.git`
+=======
+<<<<<<< HEAD
+First clone the kubernetes github repo, `$ git clone git@github.com:GoogleCloudPlatform/kubernetes.git`
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 then `$ cd kubernetes/cluster/ubuntu`.
 
 Then run `$ ./build.sh`, this will download all the needed binaries into `./binaries`.
@@ -31,6 +48,25 @@ Please make sure that there are `kube-apiserver`, `kube-controller-manager`, `ku
 > We used flannel here because we want to use overlay network, but please remember it is not the only choice, and it is also not a k8s' necessary dependence. Actually you can just build up k8s cluster natively, or use flannel, Open vSwitch or any other SDN tool you like, we just choose flannel here as a example.
 
 #### II. Configure and start the kubernetes cluster
+=======
+On your laptop, copy `cluster/ubuntu` directory to your workspace.
+
+The `build.sh` will download and build all the needed binaries into `./binaries`.
+
+You can customize your etcd version or K8s version in the build.sh by changing  variable `ETCD_V` and `K8S_V` in build.sh, default etcd version is 2.0.0 and K8s version is 0.15.0.
+
+
+```
+$ cd cluster/ubuntu
+$ sudo ./build.sh
+```
+
+Please make sure that there are `kube-apiserver`, `kube-controller-manager`, `kube-scheduler`, `kubelet`, `kube-proxy`, `etcd`, `etcdctl` and `flannel` in the binaries directory. All the other files are not necessary for a build for now. 
+
+> We used flannel here because we want to use overlay network, but please remember it is not the only choice, and it is also not a k8s' necessary dependence. Actually you can just build up k8s cluster natively, or use flannel, Open vSwitch or any other SDN tool you like, we just choose flannel here as a example.
+
+#### II. Configue and install every components upstart script
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 An example cluster is listed as below:
 
 | IP Address|Role |      
@@ -52,7 +88,10 @@ export PORTAL_NET=11.1.1.0/24
 
 export FLANNEL_NET=172.16.0.0/16
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 ```
 
 The first variable `nodes` defines all your cluster nodes, MASTER node comes first and separated with blank space like `<user_1@ip_1> <user_2@ip_2> <user_3@ip_3> `
@@ -94,7 +133,11 @@ If all things goes right, you will see the below message from console
 
 You can also use kubectl command to see if the newly created k8s is working correctly. 
 
+<<<<<<< HEAD
 For example, use `$ kubectl get minions` to see if you get all your minion nodes comming up and ready. It may take some times for the minions be ready to use like below. 
+=======
+For example , `$ kubectl get minions` to see if you get all your minion nodes comming up and ready. It may take some times for the minions be ready to use like below . 
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 
 ```
 NAME                 LABELS             STATUS
@@ -104,12 +147,16 @@ NAME                 LABELS             STATUS
 10.10.103.223       <none>              Ready
 
 10.10.103.250       <none>              Ready
+<<<<<<< HEAD
 
+=======
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 ```
 
 Also you can run kubernetes [guest-example](https://github.com/GoogleCloudPlatform/kubernetes/tree/master/examples/guestbook) to build a redis backend cluster on the k8s．
 
 
+<<<<<<< HEAD
 #### IV. Deploy addons
 
 After the previous parts, you will have a working k8s cluster, this part will teach you how to deploy addones like dns onto the existing cluster.
@@ -149,16 +196,31 @@ After some time, you can use `$ kubectl get pods` to see the dns pod is running 
 Generally, what this approach did is quite simple: 
 
 1. Download and copy binaries and configuration files to proper dirctories on every node
+=======
+#### V. Trouble Shooting
+
+Generally, what of this approach did is quite simple: 
+
+1. Build and copy binaries and configuration files to proper dirctories on every node
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 
 2. Configure `etcd` using IPs based on input from user 
 
 3. Create and start flannel network
 
+<<<<<<< HEAD
 So, if you see a problem, **check etcd configuration first** 
 
 Please try:
 
 1. Check `/var/log/upstart/etcd.log` for suspicious etcd log 
+=======
+So, whenver you have problem, do not blame Kubernetes, **check etcd configuration first** 
+
+Please try:
+
+1. Check `/var/log/upstart/etcd.log` for suspicisous etcd log 
+>>>>>>> update the new guide and scripts to let user configure portal_net and flannel_net
 
 2. Check `/etc/default/etcd`, as we do not have much input validation, a right config should be like:
 	```
