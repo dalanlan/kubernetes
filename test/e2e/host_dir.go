@@ -28,7 +28,7 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
-var _ = Describe("emptyDir", func() {
+var _ = Describe("HostDir", func() {
 	var (
 		c         *client.Client
 		podClient client.PodInterface
@@ -42,48 +42,33 @@ var _ = Describe("emptyDir", func() {
 		podClient = c.Pods(api.NamespaceDefault)
 	})
 
-	It("volume on tmpfs should have the correct mode", func() {
-		volumePath := "/test-volume"
-		source := &api.EmptyDirVolumeSource{
-			Medium: api.StorageTypeMemory,
-		}
-		pod := testPodWithVolume(volumePath, source)
+	It("should support r/w", func() {
+		volumePath := "/home"
 
-		pod.Spec.Containers[0].Args = []string{
-			fmt.Sprintf("--fs_type=%v", volumePath),
-			fmt.Sprintf("--file_mode=%v", volumePath),
+		source := &api.HostPathVolumeSource{
+			Path: "/home",
 		}
-		testContainerOutput("emptydir r/w on tmpfs", c, pod, 0, []string{
-			"mount type of \"/test-volume\": tmpfs",
-			"mode of file \"/test-volume\": dtrwxrwxrwx", // we expect the sticky bit (mode flag t) to be set for the dir
+		containerfilePath := path.Join(source.Path, "hostdir-test-file")
+
+		pod := testPodWithHostVolume(volumePath, source)
+		pod.Spec.Containers[0].Args = []string{
+			fmt.Sprintf("--rw_new_file=%v", containerfilePath),
+		}
+		pod.Spec.Containers[1].Args = []string{
+			fmt.Sprintf("--file_content=%v", containerfilePath),
+		}
+		testContainerOutput("hostdir support r/w", c, pod, 1, []string{
+			"content of file \"/home/hostdir-test-file\": mount-tester new file",
 		})
 	})
 
-	It("should support r/w on tmpfs", func() {
-		volumePath := "/test-volume"
-		filePath := path.Join(volumePath, "test-file")
-		source := &api.EmptyDirVolumeSource{
-			Medium: api.StorageTypeMemory,
-		}
-		pod := testPodWithVolume(volumePath, source)
-
-		pod.Spec.Containers[0].Args = []string{
-			fmt.Sprintf("--fs_type=%v", volumePath),
-			fmt.Sprintf("--rw_new_file=%v", filePath),
-			fmt.Sprintf("--file_mode=%v", filePath),
-		}
-		testContainerOutput("emptydir r/w on tmpfs", c, pod, 0, []string{
-			"mount type of \"/test-volume\": tmpfs",
-			"mode of file \"/test-volume/test-file\": -rw-r--r--",
-			"content of file \"/test-volume/test-file\": mount-tester new file",
-		})
-	})
 })
 
-const containerName = "test-container"
-const volumeName = "test-volume"
+const containerName1 = "test-container-1"
+const containerName2 = "test-container-2"
+const hostdirvolumeName = "test-volume"
 
-func testPodWithVolume(path string, source *api.EmptyDirVolumeSource) *api.Pod {
+func testPodWithHostVolume(path string, source *api.HostPathVolumeSource) *api.Pod {
 	podName := "pod-" + string(util.NewUUID())
 
 	return &api.Pod{
@@ -97,11 +82,21 @@ func testPodWithVolume(path string, source *api.EmptyDirVolumeSource) *api.Pod {
 		Spec: api.PodSpec{
 			Containers: []api.Container{
 				{
-					Name:  containerName,
+					Name:  containerName1,
 					Image: "kubernetes/mounttest:0.1",
 					VolumeMounts: []api.VolumeMount{
 						{
-							Name:      volumeName,
+							Name:      hostdirvolumeName,
+							MountPath: path,
+						},
+					},
+				},
+				{
+					Name:  containerName2,
+					Image: "kubernetes/mounttest:0.1",
+					VolumeMounts: []api.VolumeMount{
+						{
+							Name:      hostdirvolumeName,
 							MountPath: path,
 						},
 					},
@@ -109,9 +104,9 @@ func testPodWithVolume(path string, source *api.EmptyDirVolumeSource) *api.Pod {
 			},
 			Volumes: []api.Volume{
 				{
-					Name: volumeName,
+					Name: hostdirvolumeName,
 					VolumeSource: api.VolumeSource{
-						EmptyDir: source,
+						HostPath: source,
 					},
 				},
 			},
