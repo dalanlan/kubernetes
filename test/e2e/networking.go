@@ -55,7 +55,7 @@ func LaunchNetTestPodPerNode(nodes *api.NodeList, name string, c *client.Client,
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/nettest:1.3",
+						Image: "reg:5000/nettest:1.3",
 						Args: []string{
 							"-service=" + name,
 							//peers >= totalPods should be asserted by the container.
@@ -86,7 +86,7 @@ var _ = Describe("Networking", func() {
 		//Since this is not really a test of kubernetes in any way, we
 		//leave it as a pre-test assertion, rather than a Ginko test.
 		By("Executing a successfull http request from the external internet")
-		resp, err := http.Get("http://google.com")
+		resp, err := http.Get("http://baidu.com")
 		if err != nil {
 			Failf("Unable to connect/talk to the internet: %v", err)
 		}
@@ -237,6 +237,7 @@ var _ = Describe("Networking", func() {
 				Logf("Attempt %v/%v: service/pod still starting. (error: '%v')", i, maxAttempts, err)
 				continue
 			}
+			Logf("fetch body as %s", string(body))
 			//Finally, we pass/fail the test based on if the container's response body, as to wether or not it was able to find peers.
 			switch string(body) {
 			case "pass":

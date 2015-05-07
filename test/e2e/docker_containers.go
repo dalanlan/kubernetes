@@ -33,15 +33,15 @@ var _ = Describe("Docker Containers", func() {
 		var err error
 		c, err = loadClient()
 		Expect(err).NotTo(HaveOccurred())
-		ns_, err := createTestingNS("containers", c)
-		ns = ns_.Name
-		Expect(err).NotTo(HaveOccurred())
+		//ns_, err := createTestingNS("containers", c)
+		ns = api.NamespaceDefault
+		//Expect(err).NotTo(HaveOccurred())
 	})
 
 	AfterEach(func() {
-		if err := c.Namespaces().Delete(ns); err != nil {
+		/*if err := c.Namespaces().Delete(ns); err != nil {
 			Failf("Couldn't delete ns %s", err)
-		}
+		}*/
 	})
 
 	It("should use the image defaults if command and args are blank", func() {
@@ -95,7 +95,7 @@ func entrypointTestPod() *api.Pod {
 			Containers: []api.Container{
 				{
 					Name:  testContainerName,
-					Image: "gcr.io/google_containers/eptest:0.1",
+					Image: "121.40.171.96:5000/eptest:0.1",
 				},
 			},
 			RestartPolicy: api.RestartPolicyNever,

@@ -53,13 +53,13 @@ var _ = Describe("HostDir", func() {
 
 		pod := testPodWithHostVolume(volumePath, source)
 		pod.Spec.Containers[0].Args = []string{
-			fmt.Sprintf("--write_new_file=%v", containerfilePath), //container[0]
+			fmt.Sprintf("--rw_new_file=%v", containerfilePath), //container[0]
 		}
 		pod.Spec.Containers[1].Args = []string{
-			fmt.Sprintf("--file_content=%v", containerfilePath), //container[1]
+			fmt.Sprintf("--file_content_in_loop=%v", containerfilePath), //container[1]
 		}
 		testContainerOutput("hostdir r/w", c, pod, 1, []string{
-			"content of file \"/home/hostdir-test-file\": hostdir-mount-tester new file",
+			"content of file \"/home/hostdir-test-file\": mount-tester new file",
 		})
 	})
 
@@ -84,7 +84,7 @@ func testPodWithHostVolume(path string, source *api.HostPathVolumeSource) *api.P
 			Containers: []api.Container{
 				{
 					Name:  containerName1,
-					Image: "dalanlan/host-dir-mounttest:0.1",
+					Image: "dalanlan/mounttest:0.1",
 					VolumeMounts: []api.VolumeMount{
 						{
 							Name:      hostdirvolumeName,
@@ -94,7 +94,7 @@ func testPodWithHostVolume(path string, source *api.HostPathVolumeSource) *api.P
 				},
 				{
 					Name:  containerName2,
-					Image: "dalanlan/host-dir-mounttest:0.1",
+					Image: "dalanlan/mounttest:0.1",
 					VolumeMounts: []api.VolumeMount{
 						{
 							Name:      hostdirvolumeName,

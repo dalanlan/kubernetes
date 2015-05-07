@@ -83,18 +83,26 @@ var _ = Describe("Services", func() {
 	})
 
 	It("should serve a basic endpoint from pods", func(done Done) {
+
 		serviceName := "endpoint-test2"
 		ns := namespaces[0]
+
 		labels := map[string]string{
 			"foo": "bar",
 			"baz": "blah",
 		}
 
 		defer func() {
+			fmt.Printf("delete service name %s\n", serviceName)
 			err := c.Services(ns).Delete(serviceName)
 			Expect(err).NotTo(HaveOccurred())
+			/*fmt.Printf("delete namespace %s\n", ns)
+			if err := c.Namespaces().Delete(ns); err != nil {
+				Failf("Couldn't delete ns %s", err)
+			}*/
 		}()
 
+		fmt.Printf("create service name %s\n", serviceName)
 		service := &api.Service{
 			ObjectMeta: api.ObjectMeta{
 				Name: serviceName,
@@ -114,6 +122,7 @@ var _ = Describe("Services", func() {
 
 		var names []string
 		defer func() {
+			fmt.Printf("name list %v \n", names)
 			for _, name := range names {
 				err := c.Pods(ns).Delete(name, nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -246,10 +255,11 @@ var _ = Describe("Services", func() {
 		validateEndpointsOrFail(c, ns, serviceName, map[string][]int{})
 
 		// We deferred Gingko pieces that may Fail, we aren't done.
-		defer func() {
+		/*defer func() {
 			close(done)
-		}()
-	}, 240.0)
+		}()*/
+
+	})
 
 	It("should be able to create a functioning external load balancer", func() {
 		if !providerIs("gce", "gke") {
@@ -308,7 +318,7 @@ var _ = Describe("Services", func() {
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/test-webserver",
+						Image: "121.40.171.96:5000/test-webserver",
 					},
 				},
 			},
@@ -515,7 +525,7 @@ func addEndpointPodOrFail(c *client.Client, ns, name string, labels map[string]s
 			Containers: []api.Container{
 				{
 					Name:  "test",
-					Image: "gcr.io/google_containers/pause",
+					Image: "121.40.171.96:5000/pause",
 					Ports: containerPorts,
 				},
 			},

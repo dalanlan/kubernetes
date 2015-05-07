@@ -179,6 +179,9 @@ func waitForPodSuccess(c *client.Client, podName string, contName string) error 
 func loadConfig() (*client.Config, error) {
 	switch {
 	case testContext.KubeConfig != "":
+		if testContext.Host != "" {
+			fmt.Printf(">>> testContext.Host: %s\n", testContext.Host)
+		}
 		fmt.Printf(">>> testContext.KubeConfig: %s\n", testContext.KubeConfig)
 		c, err := clientcmd.LoadFromFile(testContext.KubeConfig)
 		if err != nil {
@@ -308,6 +311,7 @@ func kubectlCmd(args ...string) *exec.Cmd {
 
 	// Reference a --server option so tests can run anywhere.
 	if testContext.Host != "" {
+		By(fmt.Sprintf("testContext.Host name is %s.", testContext.Host))
 		defaultArgs = append(defaultArgs, "--"+clientcmd.FlagAPIServer+"="+testContext.Host)
 	}
 	if testContext.KubeConfig != "" {
