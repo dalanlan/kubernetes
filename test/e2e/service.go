@@ -92,7 +92,7 @@ var _ = Describe("Services", func() {
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/test-webserver",
+						Image: "121.40.171.96:5000/test-webserver",
 						VolumeMounts: []api.VolumeMount{
 							{
 								Name:      "results",
@@ -102,7 +102,7 @@ var _ = Describe("Services", func() {
 					},
 					{
 						Name:    "pinger",
-						Image:   "gcr.io/google_containers/busybox",
+						Image:   "121.40.171.96:5000/busybox",
 						Command: []string{"sh", "-c", probeCmd},
 						VolumeMounts: []api.VolumeMount{
 							{
@@ -312,7 +312,7 @@ var _ = Describe("Services", func() {
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/test-webserver",
+						Image: "121.40.171.96:5000/test-webserver",
 					},
 				},
 			},
@@ -489,7 +489,7 @@ func addEndpointPodOrFail(c *client.Client, ns, name string, labels map[string]s
 			Containers: []api.Container{
 				{
 					Name:  "test",
-					Image: "gcr.io/google_containers/pause",
+					Image: "121.40.171.96:5000/pause",
 					Ports: []api.ContainerPort{{ContainerPort: 80}},
 				},
 			},
