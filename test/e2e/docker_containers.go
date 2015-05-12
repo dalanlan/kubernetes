@@ -33,9 +33,10 @@ var _ = Describe("Docker Containers", func() {
 		var err error
 		c, err = loadClient()
 		Expect(err).NotTo(HaveOccurred())
-		//ns_, err := createTestingNS("containers", c)
-		ns = api.NamespaceDefault
-		//Expect(err).NotTo(HaveOccurred())
+		ns_, err := createTestingNS("containers", c)
+		ns = ns_.Name
+		//ns = api.NamespaceDefault
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	AfterEach(func() {

@@ -8,8 +8,12 @@ package stenographer
 
 import (
 	"fmt"
+	"os"
+	"os/user"
 	"strings"
+	"time"
 
+	"github.com/GoogleCloudPlatform/kubernetes/pkg/util"
 	"github.com/onsi/ginkgo/types"
 )
 
@@ -288,20 +292,39 @@ func (s *consoleStenographer) SummarizeFailures(summaries []*types.SpecSummary) 
 	if len(failingSpecs) == 1 {
 		plural = ""
 	}
+
+	var err error
+	usr, _ := user.Current()
+	dir_path := usr.HomeDir + "/test_report"
+	err = os.Mkdir(dir_path, os.ModePerm)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	f, err := os.Create(fmt.Sprintf("%s/%s", dir_path, string(util.NewUUID())))
+	defer f.Close()
+
 	s.println(0, s.colorize(redColor+boldStyle, "Summarizing %d Failure%s:", len(failingSpecs), plural))
+	f.WriteString(fmt.Sprintf("Test Finished %s\n", time.Now().String()))
+	f.WriteString(fmt.Sprintf("Summarizing %d Failure%s:\n", len(failingSpecs), plural))
+
 	for _, summary := range failingSpecs {
 		s.printNewLine()
 		if summary.HasFailureState() {
 			if summary.TimedOut() {
 				s.print(0, s.colorize(redColor+boldStyle, "[Timeout...] "))
+				f.WriteString("[Timeout...] ")
 			} else if summary.Panicked() {
 				s.print(0, s.colorize(redColor+boldStyle, "[Panic!] "))
+				f.WriteString("[Panic!]  ")
 			} else if summary.Failed() {
 				s.print(0, s.colorize(redColor+boldStyle, "[Fail] "))
+				f.WriteString("[Fail] ")
 			}
-			s.printSpecContext(summary.ComponentTexts, summary.ComponentCodeLocations, summary.Failure.ComponentType, summary.Failure.ComponentIndex, true, true)
+			s.printSpecContextAlias(f, summary.ComponentTexts, summary.ComponentCodeLocations, summary.Failure.ComponentType, summary.Failure.ComponentIndex, true, true)
 			s.printNewLine()
 			s.println(0, s.colorize(lightGrayColor, summary.Failure.Location.String()))
+			f.WriteString(fmt.Sprintf("\n%s\n", summary.Failure.Location.String()))
 		}
 	}
 }
@@ -390,6 +413,60 @@ func (s *consoleStenographer) printFailure(indentation int, state types.SpecStat
 	}
 }
 
+func (s *consoleStenographer) printSpecContextAlias(file *os.File, componentTexts []string, componentCodeLocations []types.CodeLocation, failedComponentType types.SpecComponentType, failedComponentIndex int, failure bool, succinct bool) int {
+	startIndex := 1
+	indentation := 0
+
+	if len(componentTexts) == 1 {
+		startIndex = 0
+	}
+
+	for i := startIndex; i < len(componentTexts); i++ {
+		if failure && i == failedComponentIndex {
+			blockType := ""
+			switch failedComponentType {
+			case types.SpecComponentTypeBeforeSuite:
+				blockType = "BeforeSuite"
+			case types.SpecComponentTypeAfterSuite:
+				blockType = "AfterSuite"
+			case types.SpecComponentTypeBeforeEach:
+				blockType = "BeforeEach"
+			case types.SpecComponentTypeJustBeforeEach:
+				blockType = "JustBeforeEach"
+			case types.SpecComponentTypeAfterEach:
+				blockType = "AfterEach"
+			case types.SpecComponentTypeIt:
+				blockType = "It"
+			case types.SpecComponentTypeMeasure:
+				blockType = "Measurement"
+			}
+			if succinct {
+				s.print(0, s.colorize(redColor+boldStyle, "[%s] %s ", blockType, componentTexts[i]))
+				file.WriteString(fmt.Sprintf("[%s] %s ", blockType, componentTexts[i]))
+			} else {
+				s.println(indentation, s.colorize(redColor+boldStyle, "%s [%s]", componentTexts[i], blockType))
+				s.println(indentation, s.colorize(grayColor, "%s", componentCodeLocations[i]))
+				file.WriteString(fmt.Sprintf("%s [%s] \n", componentTexts[i], blockType))
+				file.WriteString(fmt.Sprintf("%s\n", componentCodeLocations[i]))
+			}
+		} else {
+			if succinct {
+				s.print(0, s.colorize(alternatingColors[i%2], "%s ", componentTexts[i]))
+				file.WriteString(componentTexts[i])
+			} else {
+				s.println(indentation, componentTexts[i])
+				s.println(indentation, s.colorize(grayColor, "%s", componentCodeLocations[i]))
+				file.WriteString(fmt.Sprintf("%s\n", componentTexts[i]))
+				file.WriteString(fmt.Sprintf("%s\n", componentCodeLocations[i]))
+
+			}
+		}
+		indentation++
+	}
+
+	return indentation
+}
+
 func (s *consoleStenographer) printSpecContext(componentTexts []string, componentCodeLocations []types.CodeLocation, failedComponentType types.SpecComponentType, failedComponentIndex int, failure bool, succinct bool) int {
 	startIndex := 1
 	indentation := 0
@@ -419,16 +496,23 @@ func (s *consoleStenographer) printSpecContext(componentTexts []string, componen
 			}
 			if succinct {
 				s.print(0, s.colorize(redColor+boldStyle, "[%s] %s ", blockType, componentTexts[i]))
+				//file.WriteString(fmt.Sprintf("[%s] %s ", blockType, componentTexts[i]))
 			} else {
 				s.println(indentation, s.colorize(redColor+boldStyle, "%s [%s]", componentTexts[i], blockType))
 				s.println(indentation, s.colorize(grayColor, "%s", componentCodeLocations[i]))
+				//file.WriteString(fmt.Sprintf("%s [%s] \n", componentTexts[i], blockType))
+				//file.WriteString(fmt.Sprintf("%s\n", componentCodeLocations[i]))
 			}
 		} else {
 			if succinct {
 				s.print(0, s.colorize(alternatingColors[i%2], "%s ", componentTexts[i]))
+				//file.WriteString(componentTexts[i])
 			} else {
 				s.println(indentation, componentTexts[i])
 				s.println(indentation, s.colorize(grayColor, "%s", componentCodeLocations[i]))
+				//file.WriteString(fmt.Sprintf("%s\n", componentTexts[i]))
+				//file.WriteString(fmt.Sprintf("%s\n", componentCodeLocations[i]))
+
 			}
 		}
 		indentation++

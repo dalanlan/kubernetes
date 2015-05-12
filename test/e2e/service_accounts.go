@@ -57,6 +57,10 @@ var _ = Describe("ServiceAccounts", func() {
 		var tokenName string
 		var tokenContent string
 
+		if providerIs("ubuntu") {
+			By(fmt.Sprintf("Skipping ServiceAccounts Tests for %s (not supported now)", testContext.Provider))
+			return
+		}
 		// Standard get, update retry loop
 		expectNoError(wait.Poll(time.Millisecond*500, time.Second*10, func() (bool, error) {
 			By("getting the auto-created API token")
@@ -84,7 +88,7 @@ var _ = Describe("ServiceAccounts", func() {
 				Containers: []api.Container{
 					{
 						Name:  "service-account-test",
-						Image: "kubernetes/mounttest:0.1",
+						Image: "dalanlan/mounttest:0.1",
 						Args: []string{
 							fmt.Sprintf("--file_content=%s/%s", serviceaccount.DefaultAPITokenMountPath, api.ServiceAccountTokenKey),
 						},
@@ -94,7 +98,7 @@ var _ = Describe("ServiceAccounts", func() {
 			},
 		}
 
-		testContainerOutputInNamespace("consume service account token", c, pod, []string{
+		testContainerOutputInNamespace("consume service account token", c, pod, 0, []string{
 			fmt.Sprintf(`content of file "%s/%s": %s`, serviceaccount.DefaultAPITokenMountPath, api.ServiceAccountTokenKey, tokenContent),
 		}, ns)
 	})

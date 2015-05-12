@@ -123,6 +123,7 @@ func createTestingNS(baseName string, c *client.Client) (*api.Namespace, error) 
 		Status: api.NamespaceStatus{},
 	}
 	_, err := c.Namespaces().Create(namespaceObj)
+	Logf("Creating NS %s", namespaceObj.Name)
 	return namespaceObj, err
 }
 

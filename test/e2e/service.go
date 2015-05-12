@@ -36,6 +36,7 @@ import (
 var _ = Describe("Services", func() {
 	var c *client.Client
 	// Use these in tests.  They're unique for each test to prevent name collisions.
+
 	var namespaces [2]string
 
 	BeforeEach(func() {
@@ -51,6 +52,7 @@ var _ = Describe("Services", func() {
 		}
 	})
 
+
 	AfterEach(func() {
 		for _, ns := range namespaces {
 			By(fmt.Sprintf("Destroying namespace %v", ns))
@@ -58,7 +60,7 @@ var _ = Describe("Services", func() {
 				Failf("Couldn't delete namespace %s: %s", ns, err)
 			}
 		}
-	})
+
 	// TODO: We get coverage of TCP/UDP and multi-port services through the DNS test. We should have a simpler test for multi-port TCP here.
 	It("should provide RW and RO services", func() {
 		svc := api.ServiceList{}
@@ -93,16 +95,10 @@ var _ = Describe("Services", func() {
 		}
 
 		defer func() {
-			fmt.Printf("delete service name %s\n", serviceName)
 			err := c.Services(ns).Delete(serviceName)
 			Expect(err).NotTo(HaveOccurred())
-			/*fmt.Printf("delete namespace %s\n", ns)
-			if err := c.Namespaces().Delete(ns); err != nil {
-				Failf("Couldn't delete ns %s", err)
-			}*/
 		}()
 
-		fmt.Printf("create service name %s\n", serviceName)
 		service := &api.Service{
 			ObjectMeta: api.ObjectMeta{
 				Name: serviceName,
@@ -115,14 +111,13 @@ var _ = Describe("Services", func() {
 				}},
 			},
 		}
-		_, err := c.Services(ns).Create(service)
+		_, err = c.Services(ns).Create(service)
 		Expect(err).NotTo(HaveOccurred())
 
 		validateEndpointsOrFail(c, ns, serviceName, map[string][]int{})
 
 		var names []string
 		defer func() {
-			fmt.Printf("name list %v \n", names)
 			for _, name := range names {
 				err := c.Pods(ns).Delete(name, nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -157,6 +152,7 @@ var _ = Describe("Services", func() {
 		defer func() {
 			close(done)
 		}()
+
 	}, 240.0)
 
 	It("should serve multiport endpoints from pods", func(done Done) {
@@ -255,11 +251,10 @@ var _ = Describe("Services", func() {
 		validateEndpointsOrFail(c, ns, serviceName, map[string][]int{})
 
 		// We deferred Gingko pieces that may Fail, we aren't done.
-		/*defer func() {
+		defer func() {
 			close(done)
-		}()*/
-
-	})
+		}()
+	}, 240.0)
 
 	It("should be able to create a functioning external load balancer", func() {
 		if !providerIs("gce", "gke") {
@@ -318,7 +313,7 @@ var _ = Describe("Services", func() {
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "121.40.171.96:5000/test-webserver",
+						Image: "gcr.io/google_containers/test-webserver",
 					},
 				},
 			},
@@ -513,6 +508,29 @@ func validateEndpointsOrFail(c *client.Client, ns, serviceName string, expectedE
 	}
 	By(fmt.Sprintf("successfully validated endpoints %v with on service %s/%s", expectedEndpoints, ns, serviceName))
 }
+
+/*
+func validateEndpointsOrFail(c *client.Client, ns, serviceName string, expectedPort int, expectedPods []string) {
+	expectNoError(wait.Poll(time.Second*2, time.Second*120, func() (bool, error) {
+		endpoints, err := c.Endpoints(ns).Get(serviceName)
+		if err == nil {
+			ips := flattenSubsets(endpoints.Subsets, expectedPort)
+			if len(ips) == len(expectedPods) {
+				validateIPsOrFail(c, ns, expectedPods, ips)
+				return true, nil
+			} else {
+				Logf("Unexpected number of endpoints: found %v, expected %v (ignoring for 1 second)", ips, expectedPods)
+			}
+		} else {
+			Logf("Failed to get endpoints: %v (ignoring for 1 second)", err)
+		}
+	}
+		return false, nil
+	}))
+	Logf("successfully validated endpoints %v port %d on service %s/%s", expectedPods, expectedPort, ns, serviceName)
+}
+
+*/
 
 func addEndpointPodOrFail(c *client.Client, ns, name string, labels map[string]string, containerPorts []api.ContainerPort) {
 	By(fmt.Sprintf("Adding pod %v in namespace %v", name, ns))

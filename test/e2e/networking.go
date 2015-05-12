@@ -201,7 +201,7 @@ var _ = Describe("Networking", func() {
 			By("Cleaning up the webserver pods")
 			for _, podName := range podNames {
 
-				if err = c.Pods(namespace.Name).Delete(podName, nil); err != nil {
+				if err = c.Pods(namespaceObj.Name).Delete(podName, nil); err != nil {
 
 					Logf("Failed to delete pod %s: %v", podName, err)
 				}
