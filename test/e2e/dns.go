@@ -108,7 +108,7 @@ var _ = Describe("DNS", func() {
 					// TODO: Consider scraping logs instead of running a webserver.
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/test-webserver",
+						Image: "reg:5000/test-webserver",
 						VolumeMounts: []api.VolumeMount{
 							{
 								Name:      "results",
@@ -118,7 +118,7 @@ var _ = Describe("DNS", func() {
 					},
 					{
 						Name:    "querier",
-						Image:   "gcr.io/google_containers/dnsutils",
+						Image:   "reg:5000/dnsutils",
 						Command: []string{"sh", "-c", probeCmd},
 						VolumeMounts: []api.VolumeMount{
 							{

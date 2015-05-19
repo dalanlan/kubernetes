@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2015 Google Inc. All rights reserved.
+# Copyright 2014 The Kubernetes Authors All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## Contains configuration values for interacting with the Ubuntu cluster in test mode
-KUBE_ROOT=$(dirname "${BASH_SOURCE}")/../..
-source "${KUBE_ROOT}/cluster/ubuntu/config-default.sh"
-#source "${KUBE_ROOT}/cluster/ubuntu/config-test-default.sh"
+# Tear down a Kubernetes cluster.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+KUBE_ROOT=$(dirname "${BASH_SOURCE}")/..
+source "${KUBE_ROOT}/cluster/kube-env.sh"
+source "${KUBE_ROOT}/cluster/${KUBERNETES_PROVIDER}/util.sh"
+
+echo "Refreshing cluster using provider: $KUBERNETES_PROVIDER"
+
+verify-prereqs
+kube-refresh
+
+echo "Done"

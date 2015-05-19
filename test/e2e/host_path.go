@@ -68,7 +68,7 @@ var _ = Describe("hostDir", func() {
 			fmt.Sprintf("--fs_type=%v", volumePath),
 			fmt.Sprintf("--file_mode=%v", volumePath),
 		}
-		testContainerOutputInNamespace("emptydir r/w on tmpfs", c, pod, []string{
+		testContainerOutputInNamespace("emptydir r/w on tmpfs", c, pod, 0, []string{
 			"mode of file \"/test-volume\": dtrwxrwxrwx", // we expect the sticky bit (mode flag t) to be set for the dir
 		},
 			namespace.Name)
@@ -87,7 +87,7 @@ var _ = Describe("hostDir", func() {
 			fmt.Sprintf("--rw_new_file=%v", filePath),
 			fmt.Sprintf("--file_mode=%v", filePath),
 		}
-		testContainerOutputInNamespace("emptydir r/w on tmpfs", c, pod, []string{
+		testContainerOutputInNamespace("emptydir r/w on tmpfs", c, pod, 0, []string{
 			"mode of file \"/test-volume/test-file\": -rw-r--r--",
 			"content of file \"/test-volume/test-file\": mount-tester new file",
 		}, namespace.Name,
@@ -126,7 +126,7 @@ func testPodWithHostVol(path string, source *api.HostPathVolumeSource) *api.Pod 
 			Containers: []api.Container{
 				{
 					Name:  containerName,
-					Image: "kubernetes/mounttest:0.1",
+					Image: "reg:5000/mounttest:0.1",
 					VolumeMounts: []api.VolumeMount{
 						{
 							Name:      volumeName,

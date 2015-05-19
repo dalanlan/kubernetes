@@ -254,7 +254,7 @@ func testPDPod(diskName, targetHost string, readOnly bool) *api.Pod {
 			Containers: []api.Container{
 				{
 					Name:  "testpd",
-					Image: "121.40.171.96:5000/pause",
+					Image: "reg:5000/pause",
 					VolumeMounts: []api.VolumeMount{
 						{
 							Name:      "testpd",

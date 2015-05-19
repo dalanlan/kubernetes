@@ -96,7 +96,7 @@ func entrypointTestPod() *api.Pod {
 			Containers: []api.Container{
 				{
 					Name:  testContainerName,
-					Image: "121.40.171.96:5000/eptest:0.1",
+					Image: "reg:5000/eptest:0.1",
 				},
 			},
 			RestartPolicy: api.RestartPolicyNever,

@@ -108,7 +108,7 @@ var _ = Describe("Scale", func() {
 						name := "my-short-lived-pod" + string(util.NewUUID())
 						n := itArg.podsPerMinion * minionCount
 
-						expectNoError(RunRC(c, name, ns, "121.40.171.96:5000/pause:go", n))
+						expectNoError(RunRC(c, name, ns, "reg:5000/pause:go", n))
 
 						podsLaunched += n
 						Logf("Launched %v pods so far...", podsLaunched)

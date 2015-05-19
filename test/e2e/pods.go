@@ -159,7 +159,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:  "nginx",
-						Image: "121.40.171.96:5000/nginx:1.7.9",
+						Image: "reg:5000/nginx:1.7.9",
 						Ports: []api.ContainerPort{{ContainerPort: 80}},
 						LivenessProbe: &api.Probe{
 							Handler: api.Handler{
@@ -259,7 +259,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:  "nginx",
-						Image: "121.40.171.96:5000/nginx:1.7.9",
+						Image: "reg:5000/nginx:1.7.9",
 						Ports: []api.ContainerPort{{ContainerPort: 80}},
 						LivenessProbe: &api.Probe{
 							Handler: api.Handler{
@@ -336,7 +336,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:  "srv",
-						Image: "121.40.171.96:5000/serve_hostname:1.1",
+						Image: "reg:5000/serve_hostname:1.1",
 						Ports: []api.ContainerPort{{ContainerPort: 9376}},
 					},
 				},
@@ -391,7 +391,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:    "env3cont",
-						Image:   "121.40.171.96:5000/busybox",
+						Image:   "reg:5000/busybox",
 						Command: []string{"sh", "-c", "env"},
 					},
 				},
@@ -420,7 +420,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:    "liveness",
-						Image:   "121.40.171.96:5000/busybox",
+						Image:   "reg:5000/busybox",
 						Command: []string{"/bin/sh", "-c", "echo ok >/tmp/health; sleep 10; rm -rf /tmp/health; sleep 600"},
 						LivenessProbe: &api.Probe{
 							Handler: api.Handler{
@@ -446,7 +446,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:    "liveness",
-						Image:   "121.40.171.96:5000/busybox",
+						Image:   "reg:5000/busybox",
 						Command: []string{"/bin/sh", "-c", "echo ok >/tmp/health; sleep 600"},
 						LivenessProbe: &api.Probe{
 							Handler: api.Handler{
@@ -472,7 +472,7 @@ var _ = Describe("Pods", func() {
 				Containers: []api.Container{
 					{
 						Name:    "liveness",
-						Image:   "121.40.171.96:5000/liveness",
+						Image:   "reg:5000/liveness",
 						Command: []string{"/server"},
 						LivenessProbe: &api.Probe{
 							Handler: api.Handler{

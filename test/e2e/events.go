@@ -60,7 +60,7 @@ var _ = Describe("Events", func() {
 				Containers: []api.Container{
 					{
 						Name:  "p",
-						Image: "121.40.171.96:5000/serve_hostname:1.1",
+						Image: "reg:5000/serve_hostname:1.1",
 						Ports: []api.ContainerPort{{ContainerPort: 80}},
 					},
 				},

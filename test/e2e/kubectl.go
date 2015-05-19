@@ -32,8 +32,8 @@ import (
 )
 
 const (
-	nautilusImage            = "121.40.171.96:5000/update-demo:nautilus"
-	kittenImage              = "121.40.171.96:5000/update-demo:kitten"
+	nautilusImage            = "reg:5000/update-demo:nautilus"
+	kittenImage              = "reg:5000/update-demo:kitten"
 	updateDemoSelector       = "name=update-demo"
 	updateDemoContainer      = "update-demo"
 	frontendSelector         = "name=frontend"

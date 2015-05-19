@@ -55,7 +55,7 @@ func LaunchNetTestPodPerNode(nodes *api.NodeList, name string, c *client.Client,
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "reg:5000/nettest:1.3",
+						Image: "reg:5000/nettest:1.4",
 						Args: []string{
 							"-service=" + name,
 							//peers >= totalPods should be asserted by the container.

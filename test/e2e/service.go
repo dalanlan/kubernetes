@@ -52,7 +52,6 @@ var _ = Describe("Services", func() {
 		}
 	})
 
-
 	AfterEach(func() {
 		for _, ns := range namespaces {
 			By(fmt.Sprintf("Destroying namespace %v", ns))
@@ -60,6 +59,7 @@ var _ = Describe("Services", func() {
 				Failf("Couldn't delete namespace %s: %s", ns, err)
 			}
 		}
+	})
 
 	// TODO: We get coverage of TCP/UDP and multi-port services through the DNS test. We should have a simpler test for multi-port TCP here.
 	It("should provide RW and RO services", func() {
@@ -111,7 +111,7 @@ var _ = Describe("Services", func() {
 				}},
 			},
 		}
-		_, err = c.Services(ns).Create(service)
+		_, err := c.Services(ns).Create(service)
 		Expect(err).NotTo(HaveOccurred())
 
 		validateEndpointsOrFail(c, ns, serviceName, map[string][]int{})
@@ -313,7 +313,7 @@ var _ = Describe("Services", func() {
 				Containers: []api.Container{
 					{
 						Name:  "webserver",
-						Image: "gcr.io/google_containers/test-webserver",
+						Image: "reg:5000/test-webserver",
 					},
 				},
 			},
@@ -543,7 +543,7 @@ func addEndpointPodOrFail(c *client.Client, ns, name string, labels map[string]s
 			Containers: []api.Container{
 				{
 					Name:  "test",
-					Image: "121.40.171.96:5000/pause",
+					Image: "reg:5000/pause",
 					Ports: containerPorts,
 				},
 			},
